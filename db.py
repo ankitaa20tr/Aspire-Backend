@@ -1,3 +1,4 @@
+
 from app.database.database import Base, engine
 from app.database.models import User, SavedStrategy
 import logging
@@ -12,3 +13,8 @@ def init_db():
 
 if __name__ == "__main__":
     init_db()
+
+
+# work --> 
+# Create your database tables
+# Sync  Python model definitions to  DB schema
