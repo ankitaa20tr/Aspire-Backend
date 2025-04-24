@@ -82,8 +82,28 @@ def get_active_user(current_user: User = Depends(get_current_user)) -> User:
         )
     return current_user
 
+    # access_token = create_access_token(
+    #     data={"sub": user.email, "user_id": str(user.id)}  # Convert UUID to string
+    # )
+
+
 if __name__ == "__main__":
     print("Authetication working")
 
     # source venvAnkitaTiwari/bin/activate
     # python3 -m app.auth.utils
+
+
+
+# explain this code its internal working input ouput and all the end points 
+
+import uuid
+import json
+from jose import jwt
+
+def create_access_token(data: dict):
+    # Convert UUIDs to string
+    data = {key: str(value) if isinstance(value, uuid.UUID) else value for key, value in data.items()}
+    
+    # Your existing logic to create the JWT token
+    return jwt.encode(data, SECRET_KEY, algorithm=ALGORITHM)

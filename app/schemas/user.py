@@ -24,12 +24,19 @@ class TokenData(BaseModel):
 
 class UserResponse(UserBase):
     id: str
+    email: EmailStr
     full_name: Optional[str] = None
     is_active: bool
     created_at: datetime
-
+    
     class Config:
         from_attributes = True
+        orm_mode = True
+        
+    def from_orm(cls, obj):
+        obj_dict = obj.__dict__
+        obj_dict['id'] = str(obj_dict['id'])  # Convert UUID to string
+        return super().from_orm(obj_dict)
 
 def main():
     print("Yupp running")

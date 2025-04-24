@@ -1,20 +1,57 @@
 # python3 -m app.services.services
 # source venvAnkitaTiwari/bin/activate
 import os
+import sys
 from openai import OpenAI
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 from loguru import logger
+from pathlib import Path
 from typing import List, Dict, Any, Optional
 from app.schemas.strategy import StrategyRequest
 
+# Determine project root and locate .env
+BASE_DIR = Path(__file__).resolve().parents[2]  
+ENV_PATH = BASE_DIR / ".env"
+load_dotenv(dotenv_path=ENV_PATH, override=True)
+print("Looking for .env at:", ENV_PATH)
+logger.info(f"Loading environment variables from {ENV_PATH}")
 
-load_dotenv()
-
-
+# Fetch OpenAI configuration
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o")
 
+if OPENAI_API_KEY:
+    print(f"OpenAI API Key: {OPENAI_API_KEY}")
+else:
+    print("❌ OpenAI API key not found.")
+
+# Initialize OpenAI client
 client = OpenAI(api_key=OPENAI_API_KEY)
+
+# # Load environment variables with improved debugging
+# dotenv_path = find_dotenv()
+# if not dotenv_path:
+#     logger.error("No .env file found. Please create one based on .env.example")
+    
+# if load_dotenv(dotenv_path):
+#     logger.info(f"Loaded environment variables from {dotenv_path}")
+# else:
+#     logger.warning("Could not load .env file. Using environment variables directly")
+
+# # Get API key from environment variable
+# OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+# OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o")
+
+# if __name__ == "__main__":
+#     # This will run when the module is executed directly
+#     print(f"Key: {OPENAI_API_KEY}")
+#     if OPENAI_API_KEY and OPENAI_API_KEY != "your-openai-api-key":
+#         print("✅ OpenAI service is ready!")
+#     else:
+#         print("❌ OpenAI API key not found or is using the default example value.")
+#         print("Please set the OPENAI_API_KEY environment variable in your .env file.")
+#         print(f".env file location searched: {dotenv_path or 'Not found'}")
+
 
 def generate_business_strategy(strategy_request: StrategyRequest) -> Dict[str, Any]:
     """Generate a business strategy using OpenAI's API."""
@@ -23,7 +60,12 @@ def generate_business_strategy(strategy_request: StrategyRequest) -> Dict[str, A
         logger.error("OpenAI API key not found in environment variables")
         raise ValueError("OpenAI API key not configured")
     
+    if OPENAI_API_KEY == "your-openai-api-key":
+        logger.error("OpenAI API key is using the default example value")
+        raise ValueError("Please set a valid OpenAI API key in your .env file")
+    
     try:
+        # ... keep existing code (prompt creation and API call)
         prompt = f"""
         You are an expert business strategist. Generate a comprehensive business strategy for the following business:
         
@@ -50,25 +92,22 @@ def generate_business_strategy(strategy_request: StrategyRequest) -> Dict[str, A
         - resources (array)
         """
 
-
-        # sent to model
         response = client.chat.completions.create(
-        model=OPENAI_MODEL,
-        messages=[
-            {"role": "system", "content": "You are an expert business strategist providing actionable advice for small and medium businesses."},
-            {"role": "user", "content": prompt}
-        ],
-        temperature=0.7,
-        response_format={"type": "json_object"},
+            model=OPENAI_MODEL,
+            messages=[
+                {"role": "system", "content": "You are an expert business strategist providing actionable advice for small and medium businesses."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.7,
+            response_format={"type": "json_object"},
         )
         
+        # Extract the generated content
         strategy_content = response.choices[0].message.content
         
+        # Log successful API call
         logger.info(f"Successfully generated strategy for {strategy_request.business_name}")
         
-
-
-
         import json
         # Parse JSON response
         try:
@@ -95,8 +134,14 @@ def generate_chatbot_response(message: str, conversation_history: List[Dict[str,
         logger.error("OpenAI API key not found in environment variables")
         raise ValueError("OpenAI API key not configured")
     
+    if OPENAI_API_KEY == "your-openai-api-key":
+        logger.error("OpenAI API key is using the default example value")
+        raise ValueError("Please set a valid OpenAI API key in your .env file")
+    
     if conversation_history is None:
         conversation_history = []
+
+
         
     try:
         messages = [
@@ -131,4 +176,8 @@ def generate_chatbot_response(message: str, conversation_history: List[Dict[str,
 
 if __name__ == "__main__":
     print("✅ OpenAI service is ready!")
+
+# with open(ENV_PATH, "r") as f:
+#     print("=== .env content ===")
+#     print(f.read())
 

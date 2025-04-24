@@ -8,7 +8,9 @@ from app.database.models import User, Conversation, Message
 from app.auth.utils import get_active_user
 from app.schemas.strategy import StrategyRequest, StrategyResponse
 from app.schemas.chat import ChatRequest, ChatResponse, ChatMessage
+from app.services.services import generate_business_strategy, generate_chatbot_response
 from loguru import logger
+
 
 router = APIRouter(
     prefix="/ai",
@@ -16,42 +18,31 @@ router = APIRouter(
     responses={401: {"description": "Unauthorized"}},
 )
 
-
-
 @router.post("/generate-strategy", response_model=StrategyResponse)
 async def generate_strategy(
     strategy_request: StrategyRequest,
     current_user: User = Depends(get_active_user),
     db: Session = Depends(get_db)
 ):
-
-
-
     """
     Generate a business strategy using AI.
     """
-
-
     try:
         logger.info(f"Generating strategy for {strategy_request.business_name}, user: {current_user.email}")
         strategy = generate_business_strategy(strategy_request)
         return strategy
-
     except ValueError as e:
         logger.error(f"Value error in strategy generation: {e}")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e)
         )
-
     except Exception as e:
         logger.error(f"Error generating strategy: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to generate strategy. Please try again later."
         )
-
-
 
 @router.post("/chatbot", response_model=ChatResponse)
 async def chatbot(
