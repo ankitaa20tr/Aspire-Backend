@@ -31,6 +31,10 @@ class UserResponse(UserBase):
     
     class Config:
         from_attributes = True
+<<<<<<< HEAD
+=======
+        orm_mode = True
+>>>>>>> 10ea94d63b78da66bb861a7ac7de7cf034028959
         
     def from_orm(cls, obj):
         obj_dict = obj.__dict__

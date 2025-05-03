@@ -15,6 +15,7 @@ class StrategyBase(BaseModel):
 class StrategyRequest(StrategyBase):
     pass
 
+<<<<<<< HEAD
 # class StrategyItem(BaseModel):
 #     title: str
 #     description: str
@@ -35,12 +36,18 @@ class ResourceItem(BaseModel):
 #     action_plan: List[ActionPlanItem]
 #     resources: List[ResourceItem]
 
+=======
+>>>>>>> 10ea94d63b78da66bb861a7ac7de7cf034028959
 class StrategyResponse(BaseModel):
     title: str
     summary: str
     strategies: List[str]
     action_plan: List[str]
+<<<<<<< HEAD
     resources: List[ResourceItem]
+=======
+    resources: Optional[List[str]] = None
+>>>>>>> 10ea94d63b78da66bb861a7ac7de7cf034028959
 
 class SaveStrategyRequest(BaseModel):
     title: str

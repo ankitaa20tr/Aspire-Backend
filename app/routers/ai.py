@@ -1,4 +1,5 @@
 # python3 -m app.routers.ai
+<<<<<<< HEAD
 # source .venv/bin/activate
 
 import json
@@ -8,11 +9,18 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from loguru import logger
 
+=======
+# source venvAnkitaTiwari/bin/activate
+from fastapi import APIRouter, Depends, HTTPException, status, Body
+from sqlalchemy.orm import Session
+from typing import List, Dict
+>>>>>>> 10ea94d63b78da66bb861a7ac7de7cf034028959
 from app.database.database import get_db
 from app.database.models import User, Conversation, Message
 from app.auth.utils import get_active_user
 from app.schemas.strategy import StrategyRequest, StrategyResponse
 from app.schemas.chat import ChatRequest, ChatResponse, ChatMessage
+<<<<<<< HEAD
 from app.services import (
     generate_business_strategy,
     generate_chatbot_response,
@@ -20,6 +28,11 @@ from app.services import (
     GeminiAPIError,
     GeminiContentFilterError
 )
+=======
+from app.services.services import generate_business_strategy, generate_chatbot_response
+from loguru import logger
+
+>>>>>>> 10ea94d63b78da66bb861a7ac7de7cf034028959
 
 router = APIRouter(
     prefix="/ai",
@@ -39,6 +52,7 @@ async def generate_strategy(
     try:
         logger.info(f"Generating strategy for {strategy_request.business_name}, user: {current_user.email}")
         strategy = generate_business_strategy(strategy_request)
+<<<<<<< HEAD
 
        # Fix action_plan if it's a list of dicts
         if isinstance(strategy.get('action_plan'), list):
@@ -107,13 +121,19 @@ async def generate_strategy(
             detail=guidance_message
         )
 
+=======
+        return strategy
+>>>>>>> 10ea94d63b78da66bb861a7ac7de7cf034028959
     except ValueError as e:
         logger.error(f"Value error in strategy generation: {e}")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e)
         )
+<<<<<<< HEAD
 
+=======
+>>>>>>> 10ea94d63b78da66bb861a7ac7de7cf034028959
     except Exception as e:
         logger.error(f"Error generating strategy: {str(e)}")
         raise HTTPException(
@@ -132,20 +152,37 @@ async def chatbot(
     """
     try:
         conversation = None
+<<<<<<< HEAD
 
+=======
+        
+        # create a conversation
+>>>>>>> 10ea94d63b78da66bb861a7ac7de7cf034028959
         if chat_request.conversation_id:
             conversation = db.query(Conversation).filter(
                 Conversation.id == chat_request.conversation_id,
                 Conversation.user_id == current_user.id
             ).first()
+<<<<<<< HEAD
+=======
+            
+>>>>>>> 10ea94d63b78da66bb861a7ac7de7cf034028959
 
             if not conversation:
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
+<<<<<<< HEAD
                     detail="Conversation not found."
                 )
         else:
             # New conversation
+=======
+                    detail="Conversation not found"
+                )
+
+        else:
+            # new conversation
+>>>>>>> 10ea94d63b78da66bb861a7ac7de7cf034028959
             conversation = Conversation(
                 user_id=current_user.id,
                 title=chat_request.message[:30] + "..." if len(chat_request.message) > 30 else chat_request.message
@@ -153,13 +190,19 @@ async def chatbot(
             db.add(conversation)
             db.commit()
             db.refresh(conversation)
+<<<<<<< HEAD
 
         # Fetch conversation history
+=======
+        
+  
+>>>>>>> 10ea94d63b78da66bb861a7ac7de7cf034028959
         history = []
         if conversation.id:
             messages = db.query(Message).filter(
                 Message.conversation_id == conversation.id
             ).order_by(Message.created_at).all()
+<<<<<<< HEAD
 
             for msg in messages:
                 history.append({"role": msg.role, "content": msg.content})
@@ -168,13 +211,27 @@ async def chatbot(
         response_text = generate_chatbot_response(chat_request.message, history)
 
         # Save user message
+=======
+            
+            for msg in messages:
+                history.append({"role": msg.role, "content": msg.content})
+        
+        # Generate AI response
+        response_text = generate_chatbot_response(chat_request.message, history)
+        
+        # Save message
+>>>>>>> 10ea94d63b78da66bb861a7ac7de7cf034028959
         user_message = Message(
             conversation_id=conversation.id,
             content=chat_request.message,
             role="user"
         )
         db.add(user_message)
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> 10ea94d63b78da66bb861a7ac7de7cf034028959
         # Save AI response
         ai_message = Message(
             conversation_id=conversation.id,
@@ -182,6 +239,7 @@ async def chatbot(
             role="assistant"
         )
         db.add(ai_message)
+<<<<<<< HEAD
 
         db.commit()
 
@@ -191,6 +249,18 @@ async def chatbot(
 
     except HTTPException:
         raise 
+=======
+        
+        # Update conversation timestamp
+        db.commit()
+        
+        logger.info(f"Chatbot response generated for user {current_user.email}, conversation {conversation.id}")
+        return ChatResponse(message=response_text, conversation_id=conversation.id)
+        
+
+    except HTTPException:
+        raise
+>>>>>>> 10ea94d63b78da66bb861a7ac7de7cf034028959
 
     except Exception as e:
         db.rollback()
@@ -200,6 +270,11 @@ async def chatbot(
             detail="Failed to process chatbot request. Please try again later."
         )
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 10ea94d63b78da66bb861a7ac7de7cf034028959
 @router.get("/conversations", response_model=List[Dict])
 async def get_conversations(
     current_user: User = Depends(get_active_user),
@@ -212,6 +287,7 @@ async def get_conversations(
         conversations = db.query(Conversation).filter(
             Conversation.user_id == current_user.id
         ).order_by(Conversation.updated_at.desc()).all()
+<<<<<<< HEAD
 
         result = []
         for conv in conversations:
@@ -221,6 +297,18 @@ async def get_conversations(
 
             last_message = messages[-1].content if messages else ""
 
+=======
+        
+        result = []
+        for conv in conversations:
+            # Get first and last message
+            messages = db.query(Message).filter(
+                Message.conversation_id == conv.id
+            ).order_by(Message.created_at).all()
+            
+            last_message = messages[-1].content if messages else ""
+            
+>>>>>>> 10ea94d63b78da66bb861a7ac7de7cf034028959
             result.append({
                 "id": conv.id,
                 "title": conv.title,
@@ -228,9 +316,15 @@ async def get_conversations(
                 "updated_at": conv.updated_at,
                 "last_message": last_message[:100] + "..." if len(last_message) > 100 else last_message
             })
+<<<<<<< HEAD
 
         return result
 
+=======
+            
+
+        return result
+>>>>>>> 10ea94d63b78da66bb861a7ac7de7cf034028959
     except Exception as e:
         logger.error(f"Error getting conversations: {str(e)}")
         raise HTTPException(
@@ -238,6 +332,10 @@ async def get_conversations(
             detail="Failed to retrieve conversations."
         )
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 10ea94d63b78da66bb861a7ac7de7cf034028959
 @router.get("/conversations/{conversation_id}", response_model=List[ChatMessage])
 async def get_conversation_messages(
     conversation_id: str,
@@ -248,10 +346,15 @@ async def get_conversation_messages(
     Get all messages in a conversation.
     """
     try:
+<<<<<<< HEAD
+=======
+        # First check if conversation belongs to user
+>>>>>>> 10ea94d63b78da66bb861a7ac7de7cf034028959
         conversation = db.query(Conversation).filter(
             Conversation.id == conversation_id,
             Conversation.user_id == current_user.id
         ).first()
+<<<<<<< HEAD
 
         if not conversation:
             raise HTTPException(
@@ -262,6 +365,21 @@ async def get_conversation_messages(
         messages = db.query(Message).filter(
             Message.conversation_id == conversation_id
         ).order_by(Message.created_at).all()
+=======
+        
+        if not conversation:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Conversation not found"
+            )
+            
+
+        # Get messages
+        messages = db.query(Message).filter(
+            Message.conversation_id == conversation_id
+        ).order_by(Message.created_at).all()
+        
+>>>>>>> 10ea94d63b78da66bb861a7ac7de7cf034028959
 
         return [
             ChatMessage(
@@ -269,11 +387,18 @@ async def get_conversation_messages(
                 content=msg.content,
                 created_at=msg.created_at
             ) for msg in messages
+<<<<<<< HEAD
         ]
 
     except HTTPException:
         raise
 
+=======
+            
+        ]
+    except HTTPException:
+        raise
+>>>>>>> 10ea94d63b78da66bb861a7ac7de7cf034028959
     except Exception as e:
         logger.error(f"Error getting conversation messages: {str(e)}")
         raise HTTPException(
@@ -282,4 +407,8 @@ async def get_conversation_messages(
         )
 
 if __name__ == "__main__":
+<<<<<<< HEAD
+=======
+    # Put your main execution code here
+>>>>>>> 10ea94d63b78da66bb861a7ac7de7cf034028959
     print("AI Router script is running")

@@ -90,7 +90,11 @@ def get_active_user(current_user: User = Depends(get_current_user)) -> User:
 if __name__ == "__main__":
     print("Authetication working")
 
+<<<<<<< HEAD
     # source .venv/bin/activate
+=======
+    # source venvAnkitaTiwari/bin/activate
+>>>>>>> 10ea94d63b78da66bb861a7ac7de7cf034028959
     # python3 -m app.auth.utils
 
 

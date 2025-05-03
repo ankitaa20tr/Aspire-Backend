@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 annotated-types==0.7.0
 anyio==4.9.0
 bcrypt==4.3.0
@@ -54,3 +55,18 @@ typing_extensions==4.13.2
 uritemplate==4.1.1
 urllib3==2.4.0
 uvicorn==0.34.2
+=======
+fastapi
+uvicorn
+python-dotenv
+sqlalchemy
+psycopg2-binary
+openai
+passlib
+python-jose
+bcrypt
+pydantic
+email-validator
+python-multipart
+loguru
+>>>>>>> 10ea94d63b78da66bb861a7ac7de7cf034028959
